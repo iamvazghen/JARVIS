@@ -1,52 +1,129 @@
-import speech_recognition as sr
-import pyttsx3
+import time
 
-from Jarvis.features import date_time
-from Jarvis.features import launch_app
-from Jarvis.features import website_open
-from Jarvis.features import weather
-from Jarvis.features import wikipedia
-from Jarvis.features import news
-from Jarvis.features import send_email
-from Jarvis.features import google_search
-from Jarvis.features import google_calendar
-from Jarvis.features import note
-from Jarvis.features import system_stats
-from Jarvis.features import loc
+from Jarvis.speech_engine import SpeechEngine
 
 
-engine = pyttsx3.init('sapi5')
-voices = engine.getProperty('voices')
-engine.setProperty('voices', voices[0].id)
+def _log_error(context, error):
+    print(f"{context}: {error}")
 
 class JarvisAssistant:
     def __init__(self):
-        pass
+        self._mic_disabled_reason = None
+        self._mic_warned = False
+        self._app_shutdown_cb = None
+        self._app_shutdown_requested = False
+        self._speech = SpeechEngine()
+
+    def set_app_shutdown_callback(self, cb):
+        """
+        Register a callback that cleanly shuts down the GUI/app.
+        This may be called from a worker thread.
+        """
+        self._app_shutdown_cb = cb
+
+    def request_app_shutdown(self, farewell_text=""):
+        if self._app_shutdown_requested:
+            return False
+        self._app_shutdown_requested = True
+        cb = self._app_shutdown_cb
+        if not cb:
+            return False
+        try:
+            cb(farewell_text or "")
+            return True
+        except Exception as e:
+            _log_error("App shutdown callback failed", e)
+            return False
+
+    def mic_available(self) -> bool:
+        return self._speech.mic_available()
+
+    def last_input_language(self):
+        try:
+            return self._speech.last_input_language()
+        except Exception:
+            return "en"
+
+    def last_input_text(self):
+        try:
+            return self._speech.last_input_text()
+        except Exception:
+            return ""
+
+    def last_metrics(self):
+        try:
+            return self._speech.last_metrics()
+        except Exception:
+            return {}
+
+    def set_listen_mode(self, mode):
+        try:
+            return bool(self._speech.set_mode(mode))
+        except Exception:
+            return False
+
+    def get_listen_mode(self):
+        try:
+            return self._speech.get_mode()
+        except Exception:
+            return "conversational"
+
+    def set_mic_profile(self, profile):
+        try:
+            return bool(self._speech.set_profile(profile))
+        except Exception:
+            return False
+
+    def list_input_devices(self):
+        try:
+            return self._speech.list_input_devices()
+        except Exception:
+            return []
+
+    def set_input_device(self, index):
+        try:
+            return bool(self._speech.set_input_device(index))
+        except Exception:
+            return False
+
+    def warmup(self):
+        try:
+            return bool(self._speech.warmup())
+        except Exception:
+            return False
 
     def mic_input(self):
         """
         Fetch input from mic
         return: user's voice input as text if true, false if fail
         """
+        if self._app_shutdown_requested:
+            time.sleep(0.2)
+            return ""
+
+        if self._mic_disabled_reason:
+            if not self._mic_warned:
+                print(self._mic_disabled_reason)
+                self._mic_warned = True
+            time.sleep(1.0)
+            return ""
+
         try:
-            r = sr.Recognizer()
-            # r.pause_threshold = 1
-            # r.adjust_for_ambient_noise(source, duration=1)
-            with sr.Microphone() as source:
-                print("Listening....")
-                r.energy_threshold = 4000
-                audio = r.listen(source)
-            try:
-                print("Recognizing...")
-                command = r.recognize_google(audio, language='en-in').lower()
-                print(f'You said: {command}')
-            except:
-                print('Please try again')
-                command = self.mic_input()
+            command, _lang = self._speech.listen_and_transcribe()
             return command
         except Exception as e:
-            print(e)
-            return  False
+            msg = str(e) or "Microphone error"
+            if "PyAudio" in msg:
+                self._mic_disabled_reason = "Could not find PyAudio; check installation"
+                if not self._mic_warned:
+                    print(self._mic_disabled_reason)
+                    self._mic_warned = True
+            else:
+                if not self._mic_warned:
+                    _log_error("Speech capture failed", msg)
+                    self._mic_warned = True
+            time.sleep(1.0)
+            return ""
 
 
     def tts(self, text):
@@ -55,21 +132,21 @@ class JarvisAssistant:
         :param text: text(String)
         :return: True/False (Play sound if True otherwise write exception to log and return  False)
         """
-        try:
-            engine.say(text)
-            engine.runAndWait()
-            engine.setProperty('rate', 175)
-            return True
-        except:
-            t = "Sorry I couldn't understand and handle this input"
-            print(t)
-            return False
+        return self._speech.speak(text, wait=True)
+
+    def tts_async(self, text):
+        return self._speech.speak(text, wait=False)
+
+    def wait_until_silent(self, timeout_s=10):
+        return self._speech.wait_until_silent(timeout_s=timeout_s)
 
     def tell_me_date(self):
+        from Jarvis.features import date_time
 
         return date_time.date()
 
     def tell_time(self):
+        from Jarvis.features import date_time
 
         return date_time.time()
 
@@ -79,7 +156,19 @@ class JarvisAssistant:
         :param path_of_app: path of exe 
         :return: True is success and open the application, False if fail
         """
+        from Jarvis.features import launch_app
+
         return launch_app.launch_app(path_of_app)
+
+    def launch_app_name(self, app_name, new_window=False):
+        """
+        Launch an installed app by a common name (best-effort).
+        :param app_name: e.g. "chrome", "notepad", "calculator"
+        :param new_window: request a new window when supported
+        """
+        from Jarvis.features import launch_app
+
+        return launch_app.launch_app_by_name(app_name, new_window=new_window)
 
     def website_opener(self, domain):
         """
@@ -87,6 +176,8 @@ class JarvisAssistant:
         :param domain: any domain, example "youtube.com"
         :return: True if success, False if fail
         """
+        from Jarvis.features import website_open
+
         return website_open.website_opener(domain)
 
 
@@ -97,9 +188,11 @@ class JarvisAssistant:
         :return: weather info as string if True, or False
         """
         try:
+            from Jarvis.features import weather
+
             res = weather.fetch_weather(city)
         except Exception as e:
-            print(e)
+            _log_error("Weather fetch failed", e)
             res = False
         return res
 
@@ -109,6 +202,8 @@ class JarvisAssistant:
         :param topic: any string is valid options
         :return: First 500 character from wikipedia if True, False if fail
         """
+        from Jarvis.features import wikipedia
+
         return wikipedia.tell_me_about(topic)
 
     def news(self):
@@ -116,34 +211,33 @@ class JarvisAssistant:
         Fetch top news of the day from google news
         :return: news list of string if True, False if fail
         """
+        from Jarvis.features import news
+
         return news.get_news()
     
-    def send_mail(self, sender_email, sender_password, receiver_email, msg):
-
-        return send_email.mail(sender_email, sender_password, receiver_email, msg)
-
-    def google_calendar_events(self, text):
-        service = google_calendar.authenticate_google()
-        date = google_calendar.get_date(text) 
-        
-        if date:
-            return google_calendar.get_events(date, service)
-        else:
-            pass
-    
     def search_anything_google(self, command):
+        from Jarvis.features import google_search
+
         google_search.google_search(command)
 
     def take_note(self, text):
+        from Jarvis.features import note
+
         note.note(text)
     
     def system_info(self):
+        from Jarvis.features import system_stats
+
         return system_stats.system_stats()
 
     def location(self, location):
+        from Jarvis.features import loc
+
         current_loc, target_loc, distance = loc.loc(location)
         return current_loc, target_loc, distance
 
     def my_location(self):
+        from Jarvis.features import loc
+
         city, state, country = loc.my_location()
         return city, state, country

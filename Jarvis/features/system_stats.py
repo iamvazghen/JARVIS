@@ -13,9 +13,15 @@ def convert_size(size_bytes):
 
 def system_stats():
     cpu_stats = str(psutil.cpu_percent())
-    battery_percent = psutil.sensors_battery().percent
+    battery = psutil.sensors_battery()
+    battery_percent = battery.percent if battery else None
     memory_in_use = convert_size(psutil.virtual_memory().used)
     total_memory = convert_size(psutil.virtual_memory().total)
-    final_res = f"Currently {cpu_stats} percent of CPU, {memory_in_use} of RAM out of total {total_memory}  is being used and battery level is at {battery_percent} percent"
+    battery_part = (
+        f"and battery level is at {battery_percent} percent"
+        if battery_percent is not None
+        else "and battery level is unavailable"
+    )
+    final_res = f"Currently {cpu_stats} percent of CPU, {memory_in_use} of RAM out of total {total_memory} is being used {battery_part}"
     return final_res
 

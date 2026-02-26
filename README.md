@@ -1,6 +1,6 @@
-# JARVIS (Just a Rather Very Intelligent System)
+# JIVAN (Just Intelligent Versatile, Autonomous Nexus)
 
-#### This was my attempt to make a voice assistant similar to JARVIS (in iron man movie)
+#### A desktop voice assistant inspired by the “JARVIS” idea, rebuilt here as **JIVAN**.
 #### Let's be honest, it's not as intelligent as in the movie, but it can do a lot of cool things and automate your daily tasks you do on your personal computers/laptops.
 
 ## Built with
@@ -28,7 +28,7 @@ It can do a lot of cool things, some of them being:
 - Tells top headlines (via Times of India)
 - Plays music
 - Send email (with subject and content)
-- Calculate any mathematical expression (example: Jarvis, calculate x + 135 - 234 = 345)
+- Calculate any mathematical expression (example: JIVAN, calculate x + 135 - 234 = 345)
 - Answer any generic question (via Wolframalpha)
 - Take important note in notepad
 - Tells a random joke
@@ -63,17 +63,31 @@ To run this program you will require a bunch of API keys. Register your API key 
 - Run the program by ``` python main.py ```
 - Enjoy !!!!
 
+## AI Brain (LLM)
+This fork can optionally route unmatched commands to an LLM and let it call a small set of safe tools (time/date, system info, weather, Wikipedia, news, WolframAlpha).
+
+- Configure these in `Jarvis/config/config.py`:
+  - `llm_api_key`
+  - `llm_base_url` (OpenAI-compatible, e.g. `https://api.openai.com/v1`)
+  - `llm_model` (e.g. `gpt-4o-mini`)
+
+Recommended (don’t commit secrets): set environment variables instead:
+- `JIVAN_LLM_API_KEY`, `JIVAN_LLM_BASE_URL`, `JIVAN_LLM_MODEL`
+
+Moonshot (Kimi) is OpenAI-compatible:
+- `JIVAN_LLM_BASE_URL=https://api.moonshot.ai/v1`
+
 ## Code Structure
 
 
     ├── driver
-    ├── Jarvis              # Main folder for features 
+    ├── Jarvis              # Main folder for features (package name)
     │   ├── config          # Contains all secret API Keys
-    │   ├── features        # All functionalities of JARVIS 
+    │   ├── features        # All functionalities of JIVAN
     │   └── utils           # GUI images
     ├── __init__.py         # Definition of feature's functions
     ├── gui.ui              # GUI file (in .ui format)
-    ├── main.py             # main driver program of Jarvis
+    ├── main.py             # main driver program of JIVAN
     ├── requirements.txt    # all dependencies of the program
 
 - The code structure if pretty simple. The code is completely modularized and is highly customizable

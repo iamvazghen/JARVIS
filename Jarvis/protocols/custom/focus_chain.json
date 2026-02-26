@@ -1,0 +1,22 @@
+{
+  "name": "protocol_arc_reactor_ping",
+  "aliases": ["focus_chain", "focus mode chain"],
+  "description": "Sample custom protocol: acknowledges and then runs monday shutdown protocol.",
+  "side_effects": true,
+  "requires_confirmation": true,
+  "confirmation_policy": "if_side_effects",
+  "triggers": [
+    "run protocol arc reactor ping",
+    "execute protocol arc reactor ping",
+    "run protocol focus chain",
+    "focus chain protocol"
+  ],
+  "cooldown_s": 5,
+  "args_schema": {
+    "target": { "type": "string", "required": false }
+  },
+  "steps": [
+    { "type": "say", "text": "Running focus chain {{target}}" },
+    { "type": "protocol", "name": "monday" }
+  ]
+}

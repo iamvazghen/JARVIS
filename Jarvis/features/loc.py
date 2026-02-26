@@ -7,6 +7,8 @@ def loc(place):
     webbrowser.open("http://www.google.com/maps/place/" + place + "")
     geolocator = Nominatim(user_agent="myGeocoder")
     location = geolocator.geocode(place, addressdetails=True)
+    if not location:
+        return False, False, False
     target_latlng = location.latitude, location.longitude
     location = location.raw['address']
     target_loc = {'city': location.get('city', ''),

@@ -11,3 +11,6 @@ credentials.json
 *.png
 *.mp4
 *dbs.txt
+.env
+telegram_state.json
+memories_local.jsonl

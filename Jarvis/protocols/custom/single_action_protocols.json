@@ -1,0 +1,251 @@
+[
+  {
+    "name": "protocol_house_party",
+    "aliases": ["monday", "shutdown jivan", "goodbye protocol"],
+    "description": "Shutdown JIVAN application protocol.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "if_side_effects",
+    "triggers": [
+      "run protocol house party",
+      "execute protocol house party",
+      "launch protocol house party",
+      "run protocol monday",
+      "execute protocol monday",
+      "launch protocol monday",
+      "monday protocol",
+      "shutdown jivan",
+      "monday"
+    ],
+    "negative_triggers": ["monday morning"],
+    "cooldown_s": 3,
+    "args_schema": {},
+    "steps": [
+      { "type": "action", "name": "shutdown_app" }
+    ]
+  },
+  {
+    "name": "protocol_sunrise_powerdown",
+    "aliases": ["monday_morning", "monday morning"],
+    "description": "Shutdown computer protocol for monday morning.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "if_side_effects",
+    "triggers": [
+      "run protocol sunrise powerdown",
+      "execute protocol sunrise powerdown",
+      "launch protocol sunrise powerdown",
+      "run protocol monday morning",
+      "execute protocol monday morning",
+      "launch protocol monday morning",
+      "monday morning protocol",
+      "shutdown monday morning"
+    ],
+    "cooldown_s": 3,
+    "args_schema": {},
+    "steps": [
+      { "type": "action", "name": "shutdown_pc" }
+    ]
+  },
+  {
+    "name": "protocol_clean_exit",
+    "aliases": ["safe_shutdown", "safe app shutdown"],
+    "description": "Policy-wrapped app shutdown with strict confirmation.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "always",
+    "triggers": [
+      "run protocol clean exit",
+      "execute protocol clean exit",
+      "run protocol safe shutdown",
+      "execute protocol safe shutdown"
+    ],
+    "cooldown_s": 10,
+    "args_schema": {},
+    "steps": [
+      { "type": "action", "name": "shutdown_app" }
+    ]
+  },
+  {
+    "name": "protocol_red_armor",
+    "aliases": ["panic_lockdown", "lockdown now"],
+    "description": "Emergency focus action that closes common distractions.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "always",
+    "triggers": [
+      "run protocol red armor",
+      "execute protocol red armor",
+      "run protocol panic lockdown",
+      "execute protocol panic lockdown"
+    ],
+    "cooldown_s": 30,
+    "args_schema": {},
+    "steps": [
+      { "type": "tool", "name": "focus_mode", "args": { "close_apps": true, "confirm": true } }
+    ]
+  },
+  {
+    "name": "protocol_stealth_coat",
+    "aliases": ["privacy_hide_all", "hide files protocol"],
+    "description": "Single guarded privacy action to hide files.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "always",
+    "triggers": [
+      "run protocol stealth coat",
+      "execute protocol stealth coat",
+      "run protocol privacy hide all",
+      "execute protocol privacy hide all"
+    ],
+    "cooldown_s": 10,
+    "args_schema": {},
+    "steps": [
+      { "type": "tool", "name": "hide_files", "args": {} }
+    ]
+  },
+  {
+    "name": "protocol_reveal_mode",
+    "aliases": ["privacy_show_all", "show files protocol"],
+    "description": "Single guarded action to make hidden files visible.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "always",
+    "triggers": [
+      "run protocol reveal mode",
+      "execute protocol reveal mode",
+      "run protocol privacy show all",
+      "execute protocol privacy show all"
+    ],
+    "cooldown_s": 10,
+    "args_schema": {},
+    "steps": [
+      { "type": "tool", "name": "show_files", "args": {} }
+    ]
+  },
+  {
+    "name": "protocol_snap_repulsor",
+    "aliases": ["quick_desktop_capture", "desktop capture protocol"],
+    "description": "Single screenshot action with standard filename input.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "if_side_effects",
+    "triggers": [
+      "run protocol snap repulsor",
+      "execute protocol snap repulsor",
+      "run protocol quick desktop capture",
+      "execute protocol quick desktop capture"
+    ],
+    "cooldown_s": 2,
+    "args_schema": {
+      "filename": { "type": "string", "required": false }
+    },
+    "steps": [
+      { "type": "tool", "name": "take_screenshot", "args": { "filename": "{{filename}}" } }
+    ]
+  },
+  {
+    "name": "protocol_hud_flip",
+    "aliases": ["switch_workspace", "workspace switch protocol"],
+    "description": "Single deterministic workspace/window switch action.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "if_side_effects",
+    "triggers": [
+      "run protocol hud flip",
+      "execute protocol hud flip",
+      "run protocol switch workspace",
+      "execute protocol switch workspace"
+    ],
+    "cooldown_s": 1,
+    "args_schema": {},
+    "steps": [
+      { "type": "tool", "name": "switch_window", "args": {} }
+    ]
+  },
+  {
+    "name": "protocol_arc_off",
+    "aliases": ["morning_poweroff", "safe poweroff protocol"],
+    "description": "Policy-wrapped PC poweroff action with strict confirmation.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "always",
+    "triggers": [
+      "run protocol arc off",
+      "execute protocol arc off",
+      "run protocol morning poweroff",
+      "execute protocol morning poweroff"
+    ],
+    "cooldown_s": 15,
+    "args_schema": {},
+    "steps": [
+      { "type": "action", "name": "shutdown_pc" }
+    ]
+  },
+  {
+    "name": "protocol_garage_sweep",
+    "aliases": ["downloads_tidy_confirmed", "tidy downloads protocol"],
+    "description": "Single-action downloads cleanup with confirmation and cooldown.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "always",
+    "triggers": [
+      "run protocol garage sweep",
+      "execute protocol garage sweep",
+      "run protocol downloads tidy confirmed",
+      "execute protocol downloads tidy confirmed"
+    ],
+    "cooldown_s": 300,
+    "args_schema": {},
+    "steps": [
+      { "type": "tool", "name": "clean_downloads", "args": { "confirm": true } }
+    ]
+  },
+  {
+    "name": "protocol_studio_transcode",
+    "aliases": ["media_convert_safe", "safe media convert"],
+    "description": "Single guarded ffmpeg conversion using explicit input/output paths.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "always",
+    "triggers": [
+      "run protocol studio transcode",
+      "execute protocol studio transcode",
+      "run protocol media convert safe",
+      "execute protocol media convert safe"
+    ],
+    "cooldown_s": 5,
+    "args_schema": {
+      "input_path": { "type": "string", "required": true },
+      "output_path": { "type": "string", "required": true }
+    },
+    "steps": [
+      {
+        "type": "tool",
+        "name": "ffmpeg_convert",
+        "args": { "input_path": "{{input_path}}", "output_path": "{{output_path}}", "confirm": true }
+      }
+    ]
+  },
+  {
+    "name": "protocol_suit_up",
+    "aliases": ["one_click_app_boot", "app boot protocol"],
+    "description": "Single-action app launch wrapper for common recurring app boots.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "if_side_effects",
+    "triggers": [
+      "run protocol suit up",
+      "execute protocol suit up",
+      "run protocol one click app boot",
+      "execute protocol one click app boot"
+    ],
+    "cooldown_s": 2,
+    "args_schema": {
+      "app": { "type": "string", "required": true }
+    },
+    "steps": [
+      { "type": "tool", "name": "app_launch_fuzzy", "args": { "app": "{{app}}" } }
+    ]
+  }
+]

@@ -1,0 +1,237 @@
+[
+  {
+    "name": "protocol_mark5_boot",
+    "aliases": ["start_workday", "workday startup"],
+    "description": "Morning operational chain: environment checks, system health, and standup draft.",
+    "side_effects": false,
+    "requires_confirmation": false,
+    "confirmation_policy": "never",
+    "triggers": [
+      "run protocol mark5 boot",
+      "execute protocol mark5 boot",
+      "run protocol start workday",
+      "execute protocol start workday"
+    ],
+    "cooldown_s": 5,
+    "args_schema": {
+      "name": { "type": "string", "required": false }
+    },
+    "steps": [
+      { "type": "tool", "name": "env_check", "args": {} },
+      { "type": "tool", "name": "system_health", "args": { "top_n": 5 } },
+      { "type": "tool", "name": "standup_draft", "args": { "name": "{{name}}" } }
+    ]
+  },
+  {
+    "name": "protocol_jarvis_tunnel",
+    "aliases": ["focus_session", "deep focus session"],
+    "description": "Enable focus mode and save session goal note.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "if_side_effects",
+    "triggers": [
+      "run protocol jarvis tunnel",
+      "execute protocol jarvis tunnel",
+      "run protocol focus session",
+      "execute protocol focus session"
+    ],
+    "cooldown_s": 10,
+    "args_schema": {
+      "goal": { "type": "string", "required": false }
+    },
+    "steps": [
+      { "type": "tool", "name": "focus_mode", "args": { "close_apps": true, "confirm": true } },
+      { "type": "tool", "name": "take_note", "args": { "text": "Focus goal: {{goal}}" } }
+    ]
+  },
+  {
+    "name": "protocol_stark_briefing",
+    "aliases": ["research_brief", "research chain"],
+    "description": "Open search, fetch reference summary, and store a note.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "if_side_effects",
+    "triggers": [
+      "run protocol stark briefing",
+      "execute protocol stark briefing",
+      "run protocol research brief",
+      "execute protocol research brief"
+    ],
+    "cooldown_s": 5,
+    "args_schema": {
+      "topic": { "type": "string", "required": true }
+    },
+    "steps": [
+      { "type": "tool", "name": "web_search", "args": { "query": "{{topic}}" } },
+      { "type": "tool", "name": "wikipedia", "args": { "topic": "{{topic}}" } },
+      { "type": "tool", "name": "take_note", "args": { "text": "Research topic: {{topic}}" } }
+    ]
+  },
+  {
+    "name": "protocol_damage_report",
+    "aliases": ["incident_triage", "triage chain"],
+    "description": "Capture machine and repo state and draft incident notes.",
+    "side_effects": false,
+    "requires_confirmation": false,
+    "confirmation_policy": "never",
+    "triggers": [
+      "run protocol damage report",
+      "execute protocol damage report",
+      "run protocol incident triage",
+      "execute protocol incident triage"
+    ],
+    "cooldown_s": 5,
+    "args_schema": {
+      "title": { "type": "string", "required": false }
+    },
+    "steps": [
+      { "type": "tool", "name": "system_health", "args": { "top_n": 8 } },
+      { "type": "tool", "name": "git_summary", "args": { "what": "status" } },
+      { "type": "tool", "name": "meeting_note_create", "args": { "title": "{{title}}", "attendees": "Ops Team" } }
+    ]
+  },
+  {
+    "name": "protocol_launch_pad",
+    "aliases": ["release_prep", "release preparation"],
+    "description": "Quick release readiness sweep with environment and repo checks.",
+    "side_effects": false,
+    "requires_confirmation": false,
+    "confirmation_policy": "never",
+    "triggers": [
+      "run protocol launch pad",
+      "execute protocol launch pad",
+      "run protocol release prep",
+      "execute protocol release prep"
+    ],
+    "cooldown_s": 5,
+    "args_schema": {},
+    "steps": [
+      { "type": "tool", "name": "git_summary", "args": { "what": "status" } },
+      { "type": "tool", "name": "env_check", "args": {} },
+      { "type": "tool", "name": "meeting_note_create", "args": { "title": "Release Prep", "attendees": "Engineering" } }
+    ]
+  },
+  {
+    "name": "protocol_friday_forensics",
+    "aliases": ["debug_capture", "debug chain"],
+    "description": "Capture screenshot, run OCR, and explain provided error text.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "if_side_effects",
+    "triggers": [
+      "run protocol friday forensics",
+      "execute protocol friday forensics",
+      "run protocol debug capture",
+      "execute protocol debug capture"
+    ],
+    "cooldown_s": 5,
+    "args_schema": {
+      "error_text": { "type": "string", "required": true },
+      "filename": { "type": "string", "required": false }
+    },
+    "steps": [
+      { "type": "tool", "name": "take_screenshot", "args": { "filename": "{{filename}}" } },
+      { "type": "tool", "name": "screenshot_ocr", "args": { "filename": "{{filename}}" } },
+      { "type": "tool", "name": "explain_error", "args": { "error_text": "{{error_text}}" } }
+    ]
+  },
+  {
+    "name": "protocol_midnight_debrief",
+    "aliases": ["daily_wrapup", "end of day wrapup"],
+    "description": "Collect todos, draft standup summary, and store a wrap-up note.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "if_side_effects",
+    "triggers": [
+      "run protocol midnight debrief",
+      "execute protocol midnight debrief",
+      "run protocol daily wrapup",
+      "execute protocol daily wrapup"
+    ],
+    "cooldown_s": 5,
+    "args_schema": {
+      "name": { "type": "string", "required": false },
+      "summary": { "type": "string", "required": false }
+    },
+    "steps": [
+      { "type": "tool", "name": "todo_manage", "args": { "action": "list" } },
+      { "type": "tool", "name": "standup_draft", "args": { "name": "{{name}}" } },
+      { "type": "tool", "name": "take_note", "args": { "text": "Daily wrap-up: {{summary}}" } }
+    ]
+  },
+  {
+    "name": "protocol_dum_e_cleanup",
+    "aliases": ["workspace_cleanup", "cleanup workspace"],
+    "description": "Batch-rename and clean downloads in one confirmed maintenance chain.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "if_side_effects",
+    "triggers": [
+      "run protocol dum e cleanup",
+      "execute protocol dum e cleanup",
+      "run protocol workspace cleanup",
+      "execute protocol workspace cleanup"
+    ],
+    "cooldown_s": 30,
+    "args_schema": {
+      "directory": { "type": "string", "required": false },
+      "prefix": { "type": "string", "required": false },
+      "suffix": { "type": "string", "required": false }
+    },
+    "steps": [
+      {
+        "type": "tool",
+        "name": "batch_rename",
+        "args": { "directory": "{{directory}}", "prefix": "{{prefix}}", "suffix": "{{suffix}}", "confirm": true }
+      },
+      { "type": "tool", "name": "clean_downloads", "args": { "confirm": true } },
+      { "type": "tool", "name": "show_files", "args": {} }
+    ]
+  },
+  {
+    "name": "protocol_jetset_route",
+    "aliases": ["travel_quick_plan", "travel plan chain"],
+    "description": "Gather weather/news context and write a quick travel prep note.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "if_side_effects",
+    "triggers": [
+      "run protocol jetset route",
+      "execute protocol jetset route",
+      "run protocol travel quick plan",
+      "execute protocol travel quick plan"
+    ],
+    "cooldown_s": 5,
+    "args_schema": {
+      "city": { "type": "string", "required": true }
+    },
+    "steps": [
+      { "type": "tool", "name": "weather", "args": { "city": "{{city}}" } },
+      { "type": "tool", "name": "news", "args": {} },
+      { "type": "tool", "name": "take_note", "args": { "text": "Travel checklist prepared for {{city}}" } }
+    ]
+  },
+  {
+    "name": "protocol_hologram_dive",
+    "aliases": ["knowledge_deep_dive", "deep dive chain"],
+    "description": "Combine encyclopedia and computational answers into a research note.",
+    "side_effects": true,
+    "requires_confirmation": true,
+    "confirmation_policy": "if_side_effects",
+    "triggers": [
+      "run protocol hologram dive",
+      "execute protocol hologram dive",
+      "run protocol knowledge deep dive",
+      "execute protocol knowledge deep dive"
+    ],
+    "cooldown_s": 5,
+    "args_schema": {
+      "topic": { "type": "string", "required": true }
+    },
+    "steps": [
+      { "type": "tool", "name": "wikipedia", "args": { "topic": "{{topic}}" } },
+      { "type": "tool", "name": "wolframalpha", "args": { "query": "{{topic}}" } },
+      { "type": "tool", "name": "take_note", "args": { "text": "Deep dive completed for {{topic}}" } }
+    ]
+  }
+]
